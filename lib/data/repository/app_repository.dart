@@ -3,5 +3,5 @@ import '../remote/models/response/signUpResModel.dart';
 
 abstract class AppRepository {
   //signup
-  Future<SignUpResModel> signUpDetails(SignUpReqModel model);
+  Future<SignUpResModel> signUpDetails(SignUpReqModel reqModel);
 }

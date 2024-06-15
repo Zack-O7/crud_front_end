@@ -10,15 +10,17 @@ abstract class AppDataSource {
 
   AppDataSource(this.apiProvider);
 
-  Future<SignUpResModel> signUpDetails(SignUpReqModel model);
+  //SignUp
+  Future<SignUpResModel> signUpDetails(SignUpReqModel reqModel);
 }
 
 class AppDataSourceImpl extends AppDataSource {
   AppDataSourceImpl(ApiProvider apiProvider) : super(apiProvider);
 
+  //SignUp
   @override
-  Future<SignUpResModel> signUpDetails(SignUpReqModel model) async {
-    final signUp = await apiProvider.post(AppRemoteRoutes.signUp, model);
+  Future<SignUpResModel> signUpDetails(SignUpReqModel reqModel) async {
+    final signUp = await apiProvider.post(AppRemoteRoutes.signUp, reqModel);
     var resSignUpDetails = SignUpResModel.fromJson(signUp);
     if (kDebugMode) {
       debugPrint("AppDataSource : resSignUpDetails \n$resSignUpDetails");

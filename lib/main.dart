@@ -6,6 +6,7 @@ import 'injector.dart';
 import 'presentation/routes/app_routes.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await setUp();
   runApp(MyApp());
 }

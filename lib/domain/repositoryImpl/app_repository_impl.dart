@@ -1,7 +1,7 @@
 import '../../data/remote/data_source/app_datasource.dart';
 import '../../data/remote/models/request/signUpReqModel.dart';
 import '../../data/remote/models/response/signUpResModel.dart';
-import '../../data/repository/app_respository.dart';
+import '../../data/repository/app_repository.dart';
 
 class AppRepositoryImpl extends AppRepository {
   final AppDataSource appDataSource;
@@ -10,8 +10,8 @@ class AppRepositoryImpl extends AppRepository {
 
   //signup
   @override
-  Future<SignUpResModel> signUpDetails(SignUpReqModel model) async {
-    final signUpTest = await appDataSource.signUpDetails(model);
+  Future<SignUpResModel> signUpDetails(SignUpReqModel reqModel) async {
+    final signUpTest = await appDataSource.signUpDetails(reqModel);
     return signUpTest;
   }
 

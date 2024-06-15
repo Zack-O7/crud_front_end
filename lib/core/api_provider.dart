@@ -1,10 +1,14 @@
+///DIO
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../data/remote/remote_routes/app_remote_routes.dart';
+import '../presentation/routes/LocalStorageNames.dart';
 import 'custom_exception.dart';
 import 'pretty_printer.dart';
 
@@ -38,26 +42,27 @@ class ApiProvider {
       };
     }
   }
+
   addToken() {
-    // final getstorage = GetStorage();
-    // String? accesstoken = getstorage.read(LocalStorageNames.accessTokenKEY);
-    // String? refreshtoken = getstorage.read(LocalStorageNames.refreshTokenKEY);
-    // if (accesstoken != null) {
-    //   Map<String, dynamic> decodedToken = JwtDecoder.decode(accesstoken);
-    //   prettyPrint(decodedToken["name"]);
-    //   bool isTokenExpired = JwtDecoder.isExpired(accesstoken);
-    //   Duration tokenTime = JwtDecoder.getTokenTime(accesstoken);
-    //   prettyPrint("token time =${tokenTime.inMinutes}");
-    //   if (!isTokenExpired) {
-    //     _dio.options.headers.addAll({'authorization': 'Bearer $accesstoken'});
-    //   } else {
-    //     _dio.options.headers.addAll({'Cookie': 'refreshToken=$refreshtoken'});
-    //   }
-    //   _dio.options.headers.addAll(
-    //       {'accessToken': '$accesstoken', 'refreshToken': "$refreshtoken"});
-    // } else {
-    //   prettyPrint("Access token is null");
-    // }
+    final getstorage = GetStorage();
+    String? accesstoken = getstorage.read(LocalStorageNames.accessTokenKEY);
+    String? refreshtoken = getstorage.read(LocalStorageNames.refreshTokenKEY);
+    if (accesstoken != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accesstoken);
+      prettyPrint(decodedToken["name"]);
+      bool isTokenExpired = JwtDecoder.isExpired(accesstoken);
+      Duration tokenTime = JwtDecoder.getTokenTime(accesstoken);
+      prettyPrint("token time =${tokenTime.inMinutes}");
+      if (!isTokenExpired) {
+        _dio.options.headers.addAll({'authorization': 'Bearer $accesstoken'});
+      } else {
+        _dio.options.headers.addAll({'Cookie': 'refreshToken=$refreshtoken'});
+      }
+      _dio.options.headers.addAll(
+          {'accessToken': '$accesstoken', 'refreshToken': "$refreshtoken"});
+    } else {
+      prettyPrint("Access token is null");
+    }
   }
 
   Future<dynamic> get(String endPoint) async {
@@ -93,51 +98,6 @@ class ApiProvider {
     }
   }
 
-  Future<dynamic> post(
-    String endPoint,
-    dynamic body,
-  ) async {
-    prettyPrint("on post call $body");
-    try {
-      prettyPrint("starting dio");
-
-      // addToken();
-      // prettyPrint(_dio.options.)
-      final Response response = await _dio.post(
-        endPoint,
-        data: body,
-      );
-
-      prettyPrint("getting response ${response.realUri}");
-      final responseData = classifyResponse(response);
-      prettyPrint(responseData.toString());
-      return responseData;
-    } on DioException catch (err) {
-      // prettyPrint(err.toString());
-      // throw FetchDataException("internetError");
-      prettyPrint("DioError: ${err.message}");
-      if (err.type == DioExceptionType.connectionTimeout) {
-        throw FetchDataException("Connection Timeout Exception");
-      } else if (err.type == DioExceptionType.sendTimeout) {
-        throw FetchDataException("Send Timeout Exception");
-      } else if (err.type == DioExceptionType.receiveTimeout) {
-        throw FetchDataException("Receive Timeout Exception");
-      } else if (err.type == DioExceptionType.badResponse) {
-        prettyPrint("Response data: ${err.response?.data}");
-        prettyPrint("Response headers: ${err.response?.headers}");
-        throw FetchDataException(
-            "Received invalid status code: ${err.response?.statusCode}");
-      } else if (err.type == DioExceptionType.cancel) {
-        throw FetchDataException("Request Cancelled");
-      } else if (err.type == DioExceptionType.unknown) {
-        throw FetchDataException("Network Error: ${err.message}");
-      }
-    } catch (e) {
-      prettyPrint("Unexpected Error: $e");
-      throw FetchDataException("Unexpected Error: $e");
-    }
-  }
-
   // Future<dynamic> post(
   //   String endPoint,
   //   dynamic body,
@@ -146,30 +106,75 @@ class ApiProvider {
   //   try {
   //     prettyPrint("starting dio");
   //
+  //     addToken();
+  //     // prettyPrint(_dio.options.)
   //     final Response response = await _dio.post(
   //       endPoint,
   //       data: body,
   //     );
+  //
   //     prettyPrint("getting response ${response.realUri}");
   //     final responseData = classifyResponse(response);
   //     prettyPrint(responseData.toString());
   //     return responseData;
   //   } on DioException catch (err) {
-  //     prettyPrint("DioError caught: ${err.message}");
-  //     if (err.response != null) {
+  //     // prettyPrint(err.toString());
+  //     // throw FetchDataException("internetError");
+  //     prettyPrint("DioError: ${err.message}");
+  //     if (err.type == DioExceptionType.connectionTimeout) {
+  //       throw FetchDataException("Connection Timeout Exception");
+  //     } else if (err.type == DioExceptionType.sendTimeout) {
+  //       throw FetchDataException("Send Timeout Exception");
+  //     } else if (err.type == DioExceptionType.receiveTimeout) {
+  //       throw FetchDataException("Receive Timeout Exception");
+  //     } else if (err.type == DioExceptionType.badResponse) {
   //       prettyPrint("Response data: ${err.response?.data}");
   //       prettyPrint("Response headers: ${err.response?.headers}");
-  //       prettyPrint("Response status code: ${err.response?.statusCode}");
-  //     } else {
-  //       prettyPrint("Error type: ${err.type}");
-  //       // prettyPrint("Error message: ${err.message}");
+  //       throw FetchDataException(
+  //           "Received invalid status code: ${err.response?.statusCode}");
+  //     } else if (err.type == DioExceptionType.cancel) {
+  //       throw FetchDataException("Request Cancelled");
+  //     } else if (err.type == DioExceptionType.unknown) {
+  //       throw FetchDataException("Network Error: ${err.message}");
   //     }
-  //     throw FetchDataException("Network Error: ${err.message}");
   //   } catch (e) {
   //     prettyPrint("Unexpected Error: $e");
   //     throw FetchDataException("Unexpected Error: $e");
   //   }
   // }
+
+  Future<dynamic> post(
+    String endPoint,
+    dynamic body,
+  ) async {
+    prettyPrint("on post call $body");
+    try {
+      prettyPrint("starting dio");
+
+      final Response response = await _dio.post(
+        endPoint,
+        data: body,
+      );
+      prettyPrint("getting response ${response.realUri}");
+      final responseData = classifyResponse(response);
+      prettyPrint(responseData.toString());
+      return responseData;
+    } on DioException catch (err) {
+      prettyPrint("DioError caught: ${err.message}");
+      if (err.response != null) {
+        prettyPrint("Response data: ${err.response?.data}");
+        prettyPrint("Response headers: ${err.response?.headers}");
+        prettyPrint("Response status code: ${err.response?.statusCode}");
+      } else {
+        prettyPrint("Error type: ${err.type}");
+        // prettyPrint("Error message: ${err.message}");
+      }
+      throw FetchDataException("Network Error: ${err.message}");
+    } catch (e) {
+      prettyPrint("Unexpected Error: $e");
+      throw FetchDataException("Unexpected Error: $e");
+    }
+  }
 
   Future<dynamic> put(String endPoint, Map<String, dynamic> body) async {
     prettyPrint("on post call");
@@ -242,3 +247,52 @@ class ApiProvider {
     // }
   }
 }
+
+///HTTP
+// import 'dart:convert';
+// import 'package:http/http.dart' as http;
+//
+// class ApiProvider {
+//   final String _baseUrl;
+//
+//   ApiProvider(this._baseUrl);
+//
+//   Future<Map<String, dynamic>> get(String endpoint) async {
+//     final response = await http.get(Uri.parse('$_baseUrl$endpoint'));
+//     return _processResponse(response);
+//   }
+//
+//   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
+//     final response = await http.post(
+//       Uri.parse('$_baseUrl$endpoint'),
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode(data),
+//     );
+//     return _processResponse(response);
+//   }
+//
+//   Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
+//     final response = await http.put(
+//       Uri.parse('$_baseUrl$endpoint'),
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode(data),
+//     );
+//     return _processResponse(response);
+//   }
+//
+//   Future<Map<String, dynamic>> delete(String endpoint) async {
+//     final response = await http.delete(Uri.parse('$_baseUrl$endpoint'));
+//     return _processResponse(response);
+//   }
+//
+//   Map<String, dynamic> _processResponse(http.Response response) {
+//     if (response.statusCode >= 200 && response.statusCode < 300) {
+//       return jsonDecode(response.body) as Map<String, dynamic>;
+//     } else {
+//       throw http.ClientException(
+//         'Failed to load data: ${response.statusCode} ${response.reasonPhrase}',
+//         Uri.parse(response.request!.url.toString()),
+//       );
+//     }
+//   }
+// }

@@ -1,5 +1,5 @@
 import 'package:client/core/usecase.dart';
-import 'package:client/data/repository/app_respository.dart';
+import 'package:client/data/repository/app_repository.dart';
 
 import '../../data/remote/models/request/signUpReqModel.dart';
 import '../../data/remote/models/response/signUpResModel.dart';
