@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: AppPages.signIn,
       getPages: AppRoutes.routes,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
