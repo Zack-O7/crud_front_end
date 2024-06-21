@@ -98,51 +98,33 @@ class ApiProvider {
     }
   }
 
+  ///Method 1
   // Future<dynamic> post(
   //   String endPoint,
   //   dynamic body,
   // ) async {
-  //   prettyPrint("on post call $body");
+  //   prettyPrint("on post call$body");
   //   try {
   //     prettyPrint("starting dio");
-  //
+
   //     addToken();
   //     // prettyPrint(_dio.options.)
   //     final Response response = await _dio.post(
   //       endPoint,
   //       data: body,
   //     );
-  //
-  //     prettyPrint("getting response ${response.realUri}");
+
+  //     prettyPrint("getting response${response.realUri}");
   //     final responseData = classifyResponse(response);
   //     prettyPrint(responseData.toString());
   //     return responseData;
   //   } on DioException catch (err) {
-  //     // prettyPrint(err.toString());
-  //     // throw FetchDataException("internetError");
-  //     prettyPrint("DioError: ${err.message}");
-  //     if (err.type == DioExceptionType.connectionTimeout) {
-  //       throw FetchDataException("Connection Timeout Exception");
-  //     } else if (err.type == DioExceptionType.sendTimeout) {
-  //       throw FetchDataException("Send Timeout Exception");
-  //     } else if (err.type == DioExceptionType.receiveTimeout) {
-  //       throw FetchDataException("Receive Timeout Exception");
-  //     } else if (err.type == DioExceptionType.badResponse) {
-  //       prettyPrint("Response data: ${err.response?.data}");
-  //       prettyPrint("Response headers: ${err.response?.headers}");
-  //       throw FetchDataException(
-  //           "Received invalid status code: ${err.response?.statusCode}");
-  //     } else if (err.type == DioExceptionType.cancel) {
-  //       throw FetchDataException("Request Cancelled");
-  //     } else if (err.type == DioExceptionType.unknown) {
-  //       throw FetchDataException("Network Error: ${err.message}");
-  //     }
-  //   } catch (e) {
-  //     prettyPrint("Unexpected Error: $e");
-  //     throw FetchDataException("Unexpected Error: $e");
+  //     prettyPrint(err.toString());
+  //     throw FetchDataException("internetError");
   //   }
   // }
 
+  ///Method 2
   Future<dynamic> post(
     String endPoint,
     dynamic body,
@@ -151,30 +133,77 @@ class ApiProvider {
     try {
       prettyPrint("starting dio");
 
+      addToken();
+      // prettyPrint(_dio.options.)
       final Response response = await _dio.post(
         endPoint,
         data: body,
       );
+
       prettyPrint("getting response ${response.realUri}");
       final responseData = classifyResponse(response);
       prettyPrint(responseData.toString());
       return responseData;
     } on DioException catch (err) {
-      prettyPrint("DioError caught: ${err.message}");
-      if (err.response != null) {
+      // prettyPrint(err.toString());
+      // throw FetchDataException("internetError");
+      prettyPrint("DioError: ${err.message}");
+      if (err.type == DioExceptionType.connectionTimeout) {
+        throw FetchDataException("Connection Timeout Exception");
+      } else if (err.type == DioExceptionType.sendTimeout) {
+        throw FetchDataException("Send Timeout Exception");
+      } else if (err.type == DioExceptionType.receiveTimeout) {
+        throw FetchDataException("Receive Timeout Exception");
+      } else if (err.type == DioExceptionType.badResponse) {
         prettyPrint("Response data: ${err.response?.data}");
         prettyPrint("Response headers: ${err.response?.headers}");
-        prettyPrint("Response status code: ${err.response?.statusCode}");
-      } else {
-        prettyPrint("Error type: ${err.type}");
-        // prettyPrint("Error message: ${err.message}");
+        throw FetchDataException(
+            "Received invalid status code: ${err.response?.statusCode}");
+      } else if (err.type == DioExceptionType.cancel) {
+        throw FetchDataException("Request Cancelled");
+      } else if (err.type == DioExceptionType.unknown) {
+        throw FetchDataException("Network Error: ${err.message}");
       }
-      throw FetchDataException("Network Error: ${err.message}");
     } catch (e) {
       prettyPrint("Unexpected Error: $e");
-      throw FetchDataException("Unexpected Error: $e");
+      throw FetchDataException("$e");
     }
   }
+
+  ///Method 3
+  // Future<dynamic> post(
+  //   String endPoint,
+  //   dynamic body,
+  // ) async {
+  //   prettyPrint("on post call $body");
+  //   try {
+  //     prettyPrint("starting dio");
+
+  //     final Response response = await _dio.post(
+  //       endPoint,
+  //       data: body,
+  //     );
+  //     prettyPrint("getting response ${response.realUri}");
+  //     final responseData = classifyResponse(response);
+  //     prettyPrint(responseData.toString());
+  //     return responseData;
+  //   } on DioException catch (err) {
+  //     prettyPrint("DioError caught: ${err.message}");
+  //     if (err.response != null) {
+  //       prettyPrint("Response data: ${err.response?.data}");
+  //       prettyPrint("Response headers: ${err.response?.headers}");
+  //       prettyPrint("Response status code: ${err.response?.statusCode}");
+  //     } else {
+  //       prettyPrint("Error type: ${err.type}");
+  //       // prettyPrint("Error message: ${err.message}");
+  //     }
+  //     throw FetchDataException("Network Error: ${err.message}");
+  //   } catch (e) {
+  //     prettyPrint("API Provider Unexpected Error: $e");
+  //     prettyPrint(e.toString());
+  //     throw FetchDataException("Unexpected Error: $e");
+  //   }
+  // }
 
   Future<dynamic> put(String endPoint, Map<String, dynamic> body) async {
     prettyPrint("on post call");
@@ -227,15 +256,15 @@ class ApiProvider {
       case 201:
         return responseData;
       case 400:
-        throw BadRequestException("400 $errorMsg");
+        throw BadRequestException("$errorMsg");
       case 404:
-        throw BadRequestException("404 $errorMsg");
+        throw BadRequestException("$errorMsg");
       case 401:
-        throw UnauthorisedException("401 $errorMsg");
+        throw UnauthorisedException("$errorMsg");
       case 403:
-        throw UnauthorisedException("403 $errorMsg");
+        throw UnauthorisedException("$errorMsg");
       case 409:
-        throw DeleteConflictException("409 $errorMsg");
+        throw UnauthorisedException("$errorMsg");
       case 500:
       default:
         throw FetchDataException(

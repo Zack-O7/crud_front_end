@@ -6,4 +6,5 @@ class AppRemoteRoutes {
   //Admin
   static String signUp = "/users/signup";
   static String signIn = "/users/signin";
+  static String getAllUsers = "/users/getAllUsers";
 }

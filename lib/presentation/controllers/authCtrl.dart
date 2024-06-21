@@ -4,14 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../core/response_classify.dart';
+import '../../data/remote/models/request/signInReqModel.dart';
 import '../../data/remote/models/request/signUpReqModel.dart';
+import '../../data/remote/models/response/signInResModel.dart';
 import '../../data/remote/models/response/signUpResModel.dart';
+import '../../domain/usecases/signInUseCase.dart';
 import '../routes/app_pages.dart';
 
 class AuthCtrl extends GetxController {
   final SignUpUseCase signUpUseCase;
+  final SignInUseCase signInUseCase;
 
-  AuthCtrl(this.signUpUseCase);
+  AuthCtrl(this.signUpUseCase, this.signInUseCase);
 
   ///SignUp
   TextEditingController fNameCtrl = TextEditingController();
@@ -21,6 +25,7 @@ class AuthCtrl extends GetxController {
   TextEditingController cPwdCtrl = TextEditingController();
 
   final GlobalKey signUpFormKey = GlobalKey<FormState>();
+  final GlobalKey signInFormKey = GlobalKey<FormState>();
 
   ///SignUp API
   final signUpList = <SignUpData>[].obs;
@@ -103,4 +108,38 @@ class AuthCtrl extends GetxController {
   ///SignIn
   // TextEditingController emailCtrl = TextEditingController();
   // TextEditingController pwdCtrl = TextEditingController();
+
+  final signInList = <SignInResData>[];
+  final signInLoading = false.obs;
+
+  final signInState = ResponseClassify<SignInResModel>.error("").obs;
+
+  signIn() async {
+    signInState.value = ResponseClassify.loading();
+    try {
+      signInLoading.value = true;
+      signInState.value = ResponseClassify.completed(
+        await signInUseCase.call(
+          SignInReqModel(
+            email: emailCtrl.text,
+            password: pwdCtrl.text,
+          ),
+        ),
+      );
+      print("SignIn API Completed");
+      signInList.clear();
+
+      signInList.addAll(signInState.value.data!.data);
+      snackBarMsg("Login Status",
+          "${signInState.value.data!.data[0].statusMessage}", true);
+      signInLoading.value = false;
+      Get.offAllNamed(AppPages.dashboard);
+      emailCtrl.clear();
+      pwdCtrl.clear();
+    } catch (e) {
+      print("Failed $e");
+      snackBarMsg("Failed", "$e", false);
+      signInState.value = ResponseClassify.error("$e");
+    }
+  }
 }
