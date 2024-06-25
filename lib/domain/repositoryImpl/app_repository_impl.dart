@@ -1,6 +1,7 @@
+import 'package:client/data/remote/models/request/addNewCompanyReqModel.dart';
 import 'package:client/data/remote/models/request/signInReqModel.dart';
+import 'package:client/data/remote/models/response/addNewCompanyResModel.dart';
 import 'package:client/data/remote/models/response/getAllUsersResModel.dart';
-
 import 'package:client/data/remote/models/response/signInResModel.dart';
 
 import '../../data/remote/data_source/app_datasource.dart';
@@ -31,6 +32,21 @@ class AppRepositoryImpl extends AppRepository {
   Future<GetAllUsersResModel> getAllUsersDetails() async {
     final getAllUsersTest = await appDataSource.getAllUsersDetails();
     return getAllUsersTest;
+  }
+
+  ///Method 1 Using body > FormData
+  // @override
+  // Future<AddNewCompanyResModel> addNewCompanyDetails(FormData formData) async {
+  //   final addNewCompanyTest = await appDataSource.addNewCompanyDetails(formData);
+  //   return addNewCompanyTest;
+  // }
+  ///Method 2 Using body > json
+  @override
+  Future<AddNewCompanyResModel> addNewCompanyDetails(
+      AddNewCompanyReqModel reqModel) async {
+    final addNewCompanyTest =
+        await appDataSource.addNewCompanyDetails(reqModel);
+    return addNewCompanyTest;
   }
 
   //signin

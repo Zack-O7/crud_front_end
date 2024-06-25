@@ -219,7 +219,10 @@ class EmployeeDetails extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Update Employee'),
+          title: Text(
+            "UPDATE EMPLOYEE DETAILS",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -246,13 +249,17 @@ class EmployeeDetails extends StatelessWidget {
             ],
           ),
           actions: [
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, foregroundColor: Colors.white),
               onPressed: () {
                 Get.back();
               },
               child: Text('Cancel'),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, foregroundColor: Colors.white),
               onPressed: () {
                 final updatedEmployee = EmployeeDetailsModel(
                   empFirstName: firstNameCtrl.text,

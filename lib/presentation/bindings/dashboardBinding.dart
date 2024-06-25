@@ -6,6 +6,6 @@ import '../../injector.dart';
 class Dashboardbinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => DashboardCtrl(sl()));
+    Get.lazyPut(() => DashboardCtrl(sl(), sl()));
   }
 }

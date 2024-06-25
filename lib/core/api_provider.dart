@@ -99,37 +99,11 @@ class ApiProvider {
   }
 
   ///Method 1
-  // Future<dynamic> post(
-  //   String endPoint,
-  //   dynamic body,
-  // ) async {
-  //   prettyPrint("on post call$body");
-  //   try {
-  //     prettyPrint("starting dio");
-
-  //     addToken();
-  //     // prettyPrint(_dio.options.)
-  //     final Response response = await _dio.post(
-  //       endPoint,
-  //       data: body,
-  //     );
-
-  //     prettyPrint("getting response${response.realUri}");
-  //     final responseData = classifyResponse(response);
-  //     prettyPrint(responseData.toString());
-  //     return responseData;
-  //   } on DioException catch (err) {
-  //     prettyPrint(err.toString());
-  //     throw FetchDataException("internetError");
-  //   }
-  // }
-
-  ///Method 2
   Future<dynamic> post(
     String endPoint,
     dynamic body,
   ) async {
-    prettyPrint("on post call $body");
+    prettyPrint("on post call$body");
     try {
       prettyPrint("starting dio");
 
@@ -140,35 +114,61 @@ class ApiProvider {
         data: body,
       );
 
-      prettyPrint("getting response ${response.realUri}");
+      prettyPrint("getting response${response.realUri}");
       final responseData = classifyResponse(response);
       prettyPrint(responseData.toString());
       return responseData;
     } on DioException catch (err) {
-      // prettyPrint(err.toString());
-      // throw FetchDataException("internetError");
-      prettyPrint("DioError: ${err.message}");
-      if (err.type == DioExceptionType.connectionTimeout) {
-        throw FetchDataException("Connection Timeout Exception");
-      } else if (err.type == DioExceptionType.sendTimeout) {
-        throw FetchDataException("Send Timeout Exception");
-      } else if (err.type == DioExceptionType.receiveTimeout) {
-        throw FetchDataException("Receive Timeout Exception");
-      } else if (err.type == DioExceptionType.badResponse) {
-        prettyPrint("Response data: ${err.response?.data}");
-        prettyPrint("Response headers: ${err.response?.headers}");
-        throw FetchDataException(
-            "Received invalid status code: ${err.response?.statusCode}");
-      } else if (err.type == DioExceptionType.cancel) {
-        throw FetchDataException("Request Cancelled");
-      } else if (err.type == DioExceptionType.unknown) {
-        throw FetchDataException("Network Error: ${err.message}");
-      }
-    } catch (e) {
-      prettyPrint("Unexpected Error: $e");
-      throw FetchDataException("$e");
+      prettyPrint(err.toString());
+      throw FetchDataException("internetError");
     }
   }
+
+  ///Method 2
+  // Future<dynamic> post(
+  //   String endPoint,
+  //   dynamic body,
+  // ) async {
+  //   prettyPrint("on post call $body");
+  //   try {
+  //     prettyPrint("starting dio");
+
+  //     addToken();
+  //     // prettyPrint(_dio.options.)
+  //     final Response response = await _dio.post(
+  //       endPoint,
+  //       data: body,
+  //     );
+
+  //     prettyPrint("getting response ${response.realUri}");
+  //     final responseData = classifyResponse(response);
+  //     prettyPrint(responseData.toString());
+  //     return responseData;
+  //   } on DioException catch (err) {
+  //     // prettyPrint(err.toString());
+  //     // throw FetchDataException("internetError");
+  //     prettyPrint("DioError: ${err.message}");
+  //     if (err.type == DioExceptionType.connectionTimeout) {
+  //       throw FetchDataException("Connection Timeout Exception");
+  //     } else if (err.type == DioExceptionType.sendTimeout) {
+  //       throw FetchDataException("Send Timeout Exception");
+  //     } else if (err.type == DioExceptionType.receiveTimeout) {
+  //       throw FetchDataException("Receive Timeout Exception");
+  //     } else if (err.type == DioExceptionType.badResponse) {
+  //       prettyPrint("Response data: ${err.response?.data}");
+  //       prettyPrint("Response headers: ${err.response?.headers}");
+  //       throw FetchDataException(
+  //           "Received invalid status code: ${err.response?.statusCode}");
+  //     } else if (err.type == DioExceptionType.cancel) {
+  //       throw FetchDataException("Request Cancelled");
+  //     } else if (err.type == DioExceptionType.unknown) {
+  //       throw FetchDataException("Network Error: ${err.message}");
+  //     }
+  //   } catch (e) {
+  //     prettyPrint("Unexpected Error: $e");
+  //     throw FetchDataException("$e");
+  //   }
+  // }
 
   ///Method 3
   // Future<dynamic> post(
@@ -223,11 +223,70 @@ class ApiProvider {
     }
   }
 
+  Future<dynamic> request(
+      String endPoint, Map<String, dynamic> body, String method) async {
+    prettyPrint("on request call");
+    try {
+      addToken();
+      final Response response = await _dio.request(
+        endPoint,
+        options: Options(method: method, headers: {
+          "access-control-allow-origin": "*",
+          "Accept": "*/*",
+          // "Authorization": "Bearer accesstoken",
+          "Content-Type": "multipart/form-data"
+        }),
+        data: body,
+      );
+
+      final responseData = classifyResponse(response);
+      return responseData;
+    } on DioException catch (err) {
+      // prettyPrint(err.message, type: PrettyPrinterTypes.error);
+      // throw FetchDataException("internetError");
+      if (err.type == DioExceptionType.connectionTimeout ||
+          err.type == DioExceptionType.sendTimeout ||
+          err.type == DioExceptionType.receiveTimeout) {
+        throw TimeoutException("Connection timeout");
+      } else if (err.type == DioExceptionType.connectionError) {
+        throw FetchDataException("No internet connection");
+      } else if (err.response != null) {
+        // Handle different status codes
+        switch (err.response!.statusCode) {
+          case 400:
+            throw BadRequestException(err.response!.data.toString());
+          case 401:
+          case 403:
+            throw UnauthorizedException(err.response!.data.toString());
+          case 404:
+            throw NotFoundException(err.response!.data.toString());
+          case 500:
+          default:
+            throw ServerException(err.response!.data.toString());
+        }
+      } else {
+        throw FetchDataException(
+            "An error occurred while communicating with server");
+      }
+    } catch (e) {
+      prettyPrint(e.toString(), type: PrettyPrinterTypes.error);
+      throw FetchDataException("An unexpected error occurred");
+    }
+  }
+
   // Future<Uint8List> download({required String imageUrl}) async {
   //   final tempStorage = await getTemporaryDirectory();
   //   final data = await _dio.download(imageUrl, tempStorage.path);
   //   final d = data.data;
   // }
+
+  // var error = responseData["errors"];
+  //     if (error != null && error is List) {
+  //       var allErrors = error
+  //           .map((item) => item["message"] ?? "")
+  //           .where((msg) => msg.isNotEmpty);
+  //       errorMsg = allErrors.join(", ");
+  //     }
 
   // Map<String, dynamic> classifyResponse(Response response) {
   dynamic classifyResponse(Response response) {
@@ -242,11 +301,18 @@ class ApiProvider {
     String errorMsg = "";
     try {
       // errorMsg=responseData["error"][""]
+      // var error = responseData["errors"];
+      // var allErrors = error!.map((item) => item["message"]);
+      // String errorString = "";
+      // for (var i in allErrors) {
+      //   errorString = "$errorString$i,";
+      // }
       var error = responseData["errors"];
-      var allErrors = error!.map((item) => item["message"]);
-      String errorString = "";
-      for (var i in allErrors) {
-        errorString = "$errorString$i,";
+      if (error != null && error is List) {
+        var allErrors = error
+            .map((item) => item["message"] ?? "")
+            .where((msg) => msg.isNotEmpty);
+        errorMsg = allErrors.join(", ");
       }
     } catch (e) {
       errorMsg = responseData.toString();
@@ -256,15 +322,15 @@ class ApiProvider {
       case 201:
         return responseData;
       case 400:
-        throw BadRequestException("$errorMsg");
+        throw BadRequestException(errorMsg);
       case 404:
-        throw BadRequestException("$errorMsg");
+        throw BadRequestException(errorMsg);
       case 401:
-        throw UnauthorisedException("$errorMsg");
+        throw UnauthorizedException(errorMsg);
       case 403:
-        throw UnauthorisedException("$errorMsg");
+        throw UnauthorizedException(errorMsg);
       case 409:
-        throw UnauthorisedException("$errorMsg");
+        throw DeleteConflictException(errorMsg);
       case 500:
       default:
         throw FetchDataException(

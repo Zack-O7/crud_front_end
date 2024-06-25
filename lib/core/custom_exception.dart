@@ -9,7 +9,8 @@ class CustomException implements Exception {
 }
 
 class FetchDataException extends CustomException {
-  FetchDataException([String? message]) : super(message ?? "No Internet Found");
+  FetchDataException([String? message])
+   : super(message ?? "No Internet Found");
 }
 
 class BadRequestException extends CustomException {
@@ -22,9 +23,24 @@ class DeleteConflictException extends CustomException {
       : super(message ?? "No Internet Found");
 }
 
-class UnauthorisedException extends CustomException {
-  UnauthorisedException([String? message])
+class UnauthorizedException extends CustomException {
+  UnauthorizedException([String? message])
       : super(message ?? "No Internet Found");
+}
+
+class NotFoundException extends CustomException {
+  NotFoundException([String? message])
+   : super(message ?? "No Internet Found");
+}
+
+class ServerException extends CustomException {
+  ServerException([String? message])
+   : super(message ?? "Server error");
+}
+
+class TimeoutException extends CustomException {
+  TimeoutException([String? message])
+   : super(message ?? "Connection Timeout");
 }
 
 class TokenExpireException extends CustomException {

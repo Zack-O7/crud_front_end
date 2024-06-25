@@ -60,7 +60,7 @@ class SignUp extends StatelessWidget {
                       ),
                       CustomTextField(
                         controller: authCtrl.emailCtrl,
-                        hintText: "EMail ID",
+                        hintText: "E-Mail ID",
                       ),
                       CustomTextField(
                         controller: authCtrl.pwdCtrl,

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
 class CompanyDetailsModel {
   final String companyName;
   final String companyEmailId;
-  final Image? logo;
+  final File? logo;
+  // final Uint8List? logo;
   final String? website;
 
   CompanyDetailsModel(

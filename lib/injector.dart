@@ -1,3 +1,4 @@
+import 'package:client/domain/usecases/addNewCompanyUseCase.dart';
 import 'package:client/domain/usecases/getAllUsersUseCase.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,4 +18,6 @@ Future<void> setUp() async {
   sl.registerLazySingleton<SignUpUseCase>(() => SignUpUseCase(sl()));
   sl.registerLazySingleton<SignInUseCase>(() => SignInUseCase(sl()));
   sl.registerLazySingleton<GetAllUsersUseCase>(() => GetAllUsersUseCase(sl()));
+  sl.registerLazySingleton<AddNewCompanyUseCase>(
+      () => AddNewCompanyUseCase(sl()));
 }
